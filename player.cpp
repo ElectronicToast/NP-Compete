@@ -1,7 +1,7 @@
 #include "player.hpp"
 
 /*
- * Hi! - Ray
+ * Beep! - Ray
  */
 
 /*
