@@ -34,16 +34,16 @@ Board *Board::copy() {
 }
 
 bool Board::occupied(int x, int y) {
-    return taken[x + 8*y];
+    return taken[x + (y << 3)];
 }
 
 bool Board::get(Side side, int x, int y) {
-    return occupied(x, y) && (black[x + 8*y] == (side == BLACK));
+    return occupied(x, y) && (black[x + (y << 3)] == (side == BLACK));
 }
 
 void Board::set(Side side, int x, int y) {
-    taken.set(x + 8*y);
-    black.set(x + 8*y, side == BLACK);
+    taken.set(x + (y << 3));
+    black.set(x + (y << 3), side == BLACK);
 }
 
 bool Board::onBoard(int x, int y) {
