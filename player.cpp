@@ -25,11 +25,7 @@ Player::Player(Side side) {
 
     // Set player and opponent sides
     playerSide = side;
-
-    if (side == WHITE)
-        opponent = BLACK;
-    else
-        opponent = WHITE;
+    opponent = (side == BLACK) ? WHITE : BLACK;
 
     boardState = new Board();
 }
