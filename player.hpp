@@ -20,6 +20,8 @@ public:
 protected:
     Side opponent;
     Board boardState;
+
+    char[][] weights;
 };
 
 #endif
