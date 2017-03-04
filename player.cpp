@@ -82,5 +82,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     Move temp = possibleMoves[rand() % possibleMoves.size() + 1];
     Move * theMove = new Move(temp.getX(), temp.getY());
 
+    boardState.doMove(theMove, playerSide);
+    
     return theMove;
 }
