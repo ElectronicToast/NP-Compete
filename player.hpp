@@ -35,7 +35,7 @@ protected:
     Side playerSide;
     Side opponent;
 
-    Board boardState;
+    Board * boardState;
 
     char weights[8][8];
 };

@@ -31,7 +31,7 @@ Player::Player(Side side) {
     else
         opponent = WHITE;
 
-    boardState = Board();
+    boardState = new Board();
 }
 
 /*
@@ -60,7 +60,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      */
 
     // Update internal board representation
-    boardState.doMove(opponentsMove, opponent);
+    boardState->doMove(opponentsMove, opponent);
 
     // Make a random move
     vector<Move> possibleMoves;
@@ -70,7 +70,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         for (int j = 0; j < 8; j++) 
         {
             Move m(i, j);
-            if (boardState.checkMove(&m, playerSide))
+            if (boardState->checkMove(&m, playerSide))
                 possibleMoves.push_back(m);
         }
     }
@@ -79,10 +79,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         return nullptr;
 
     srand(time(NULL));
-    Move temp = possibleMoves[rand() % possibleMoves.size() + 1];
+    Move temp = possibleMoves[rand() % possibleMoves.size()];
     Move * theMove = new Move(temp.getX(), temp.getY());
 
-    boardState.doMove(theMove, playerSide);
+    boardState->doMove(theMove, playerSide);
     
     return theMove;
 }
