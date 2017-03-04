@@ -22,6 +22,10 @@ Player::Player(Side side) {
      * precalculating things, etc.) However, remember that you will only have
      * 30 seconds.
      */
+
+    // Set player and opponent sides
+    playerSide = side;
+
     if (side == WHITE)
         opponent = BLACK;
     else
@@ -58,5 +62,25 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     // Update internal board representation
     boardState.doMove(opponentsMove, opponent);
 
-    return nullptr;
+    // Make a random move
+    vector<Move> possibleMoves;
+
+    for (int i = 0; i < 8; i++) 
+    {
+        for (int j = 0; j < 8; j++) 
+        {
+            Move m(i, j);
+            if (boardState.checkMove(&m, playerSide))
+                possibleMoves.push_back(m);
+        }
+    }
+
+    if (possibleMoves.size() == 0)
+        return nullptr;
+
+    srand(time(NULL));
+    Move temp = possibleMoves[rand() % possibleMoves.size() + 1];
+    Move * theMove = new Move(temp.getX(), temp.getY());
+
+    return theMove;
 }
