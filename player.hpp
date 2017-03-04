@@ -4,6 +4,12 @@
 #include <iostream>
 #include "common.hpp"
 #include "board.hpp"
+
+#define CORNER_WT       3
+#define X_WT            -5
+#define C_WT            -2
+#define EDGE_WT         1
+                  
 using namespace std;
 
 class Player {
