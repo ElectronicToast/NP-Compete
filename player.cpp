@@ -22,6 +22,10 @@ Player::Player(Side side) {
      * precalculating things, etc.) However, remember that you will only have
      * 30 seconds.
      */
+    if (side == WHITE)
+        opponent = BLACK;
+    else
+        opponent = WHITE;
 
     boardState = Board();
 }
@@ -50,5 +54,9 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */
+
+    // Update internal board representation
+    boardState.doMove(opponentsMove, opponent);
+
     return nullptr;
 }

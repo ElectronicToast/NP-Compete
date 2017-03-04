@@ -18,6 +18,7 @@ public:
     bool testingMinimax;
 
 protected:
+    Side opponent;
     Board boardState;
 };
 
