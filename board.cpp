@@ -2,18 +2,7 @@
 
 /*
  * Make a standard 8x8 othello board and initialize it to the standard setup.
- *
- * BECAUSE EFFICIENCY
  */
-Board::Board() {
-    taken.set(27);
-    taken.set(35);
-    taken.set(28);
-    taken.set(36);
-    black.set(28);
-    black.set(27);
-}
-/*
 Board::Board() {
     taken.set(3 + 8 * 3);
     taken.set(3 + 8 * 4);
@@ -22,7 +11,6 @@ Board::Board() {
     black.set(4 + 8 * 3);
     black.set(3 + 8 * 4);
 }
-*/
 
 /*
  * Destructor for the board.

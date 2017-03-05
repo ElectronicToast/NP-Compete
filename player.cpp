@@ -1,14 +1,6 @@
 #include "player.hpp"
 
 /*
- * Beep! - Ray
- */
-
-/*
- * Hello! - Karthik
- */
-
-/*
  * Constructor for the player; initialize everything here. The side your AI is
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
  * within 30 seconds.
@@ -59,26 +51,42 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     boardState->doMove(opponentsMove, opponent);
 
     // Make a random move
-    vector<Move> possibleMoves;
+    std::vector<Move*> possibleMoves;
+
+    //Move* m = new Move(0, 0);
+
+    if (!(boardState->hasMoves(playerSide))){
+        return nullptr;
+    }
 
     for (int i = 0; i < 8; i++) 
     {
         for (int j = 0; j < 8; j++) 
         {
-            Move m(i, j);
-            if (boardState->checkMove(&m, playerSide))
-                possibleMoves.push_back(m);
+            // m->setX(i);
+            // m->setY(j);
+            Move * possibleMove = new Move(i, j);
+
+            if (boardState->checkMove(possibleMove, playerSide))
+            {   
+                // Move * possibleMove = new Move(i, j);
+                // possibleMoves.push_back(possibleMove);
+                boardState->doMove(possibleMove, playerSide);
+                return possibleMove;
+            }
         }
     }
 
-    if (possibleMoves.size() == 0)
-        return nullptr;
+    //srand(time(NULL));
+    //Move * temp = possibleMoves[rand() % possibleMoves.size()];
+    // std::random_shuffle(possibleMoves.begin(), possibleMoves.end());
+    // Move * theMove = new Move(possibleMoves[0]->getX(), possibleMoves[0]->getY());
 
-    srand(time(NULL));
-    Move temp = possibleMoves[rand() % possibleMoves.size()];
-    Move * theMove = new Move(temp.getX(), temp.getY());
+    // srand(time(NULL));
+    // Move * temp = possibleMoves[rand() % possibleMoves.size()];
+    // Move * theMove = new Move(temp->getX(), temp->getY());
 
-    boardState->doMove(theMove, playerSide);
+    // boardState->doMove(theMove, playerSide);
     
-    return theMove;
+    return NULL;
 }
