@@ -59,6 +59,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * process the opponent's opponents move before calculating your own move
      */
 
+    /*
+
     // Update internal board representation
     boardState->doMove(opponentsMove, opponent);
 
@@ -81,6 +83,51 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     srand(time(NULL));
     Move temp = possibleMoves[rand() % possibleMoves.size()];
     Move * theMove = new Move(temp.getX(), temp.getY());
+
+    boardState->doMove(theMove, playerSide);
+    
+    return theMove;
+
+    */
+
+    boardState -> doMove(opponentsMove, opponent);
+
+    vector<Move> goodMoves;
+    vector<Move> possibleMoves;
+
+    for (int i = 0; i < 8; i++) 
+    {
+        for (int j = 0; j < 8; j++) 
+        {
+            Move m(i, j);
+            if (boardState->checkMove(&m, playerSide))
+            {
+                possibleMoves.push_back(m);
+
+                if (m.getX() > 0 && m.getX() < 8 && m.getY() > 0 && m.getY() < 8)
+                {
+                    goodMoves.push_back(m);
+                }
+            }
+        }
+    }
+
+    Move temp(0, 0);
+    Move * theMove;
+
+    if (goodMoves.size() == 0)
+    {
+        srand(time(NULL));
+        temp = possibleMoves[rand() % possibleMoves.size()];
+        theMove = new Move(temp.getX(), temp.getY());
+    }
+
+    else
+    {
+        srand(time(NULL));
+        temp = goodMoves[rand() % goodMoves.size()];
+        theMove = new Move(temp.getX(), temp.getY());
+    }
 
     boardState->doMove(theMove, playerSide);
     
