@@ -15,7 +15,7 @@
  */
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
-    testingMinimax = false;
+    testingMinimax = true;
 
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
@@ -100,6 +100,11 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     */
 
+    ///////////////////////////////////////////////////
+    // HEURISTIC IMPLEMENTATION ///////////////////////
+    ///////////////////////////////////////////////////
+    /*
+
     boardState -> doMove(opponentsMove, opponent);
 
     if (!boardState->hasMoves(playerSide))
@@ -138,4 +143,82 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     boardState->doMove(goodMove, playerSide);
     
     return goodMove;
+
+    */
+
+    vector <Move *> possibleMoves = boardState->getPossibleMoves(playerSide);
+    int score = 0;
+    int maxScore = -65;
+    Move * goodMove = NULL;
+
+    if (possibleMoves.size() == 0)
+    {
+        return NULL;
+    }
+
+    else
+    {
+        for (unsigned int i = 0; i < possibleMoves.size(); i++)
+        {
+            score = minimaxScore(boardState, 1, playerSide);
+
+            if (score > maxScore)
+            {
+                maxScore = score;
+                goodMove = possibleMoves[i];
+            }
+
+        }
+    }
+
+    for (unsigned int i = 0; i < possibleMoves.size(); i++)
+    {
+        if (possibleMoves[i] != goodMove)
+        {
+            delete possibleMoves[i];
+        }
+    }
+
+    boardState->doMove(goodMove, playerSide);
+    return goodMove;
+
+}
+
+int Player::minimaxScore(Board * board, int depth, Side side){
+
+    vector <Move *> possibleMoves = board->getPossibleMoves(side);
+    int score = 0;
+    int maxScore = -65;
+
+    Side other = side==BLACK? WHITE:BLACK;
+
+    if (possibleMoves.size() == 0 || depth <= 0)
+    {
+        cerr << "testing base case" << endl;
+
+        return board->getScore(nullptr, side);
+    }
+
+    else
+    {
+        for (unsigned int i = 0; i < possibleMoves.size(); i++)
+        {
+            cerr << "testing other cases" << endl;
+
+
+            Board * tempBoard = board->copy();
+            tempBoard->doMove(possibleMoves[i], side);
+
+            score = -minimaxScore(tempBoard, depth - 1, other);
+
+            delete tempBoard;
+
+            if (score > maxScore)
+            {
+                maxScore = score;
+            }
+        }
+    }
+
+    return maxScore;
 }

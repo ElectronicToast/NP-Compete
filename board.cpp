@@ -178,3 +178,28 @@ void Board::setBoard(char data[]) {
         }
     }
 }
+
+int Board::getScore(Move * m, Side side){
+    Board * copyBoard = this->copy();
+
+    copyBoard->doMove(m, side);
+
+    Side other = side==BLACK? WHITE:BLACK;
+
+    return copyBoard->count(side) - copyBoard->count(other);
+}
+
+vector <Move*> Board::getPossibleMoves(Side side){
+    vector <Move*> possibleMoves;
+
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            Move move(i, j);
+            if (this->checkMove(&move, side)){
+                possibleMoves.push_back(&move);
+            }
+        }
+    }
+
+    return possibleMoves;
+}

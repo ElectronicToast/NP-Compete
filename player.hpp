@@ -29,6 +29,8 @@ public:
     static const int heuristic_matrix[8][8];
 
     Board * boardState;
+
+    int minimaxScore(Board * board, int depth, Side side);
 };
 
 #endif
