@@ -102,7 +102,12 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     boardState -> doMove(opponentsMove, opponent);
 
-    Move * goodMove;
+    if (!boardState->hasMoves(playerSide))
+    {
+        return NULL;
+    }
+
+    Move * goodMove = NULL;
 
     int maxScore = -100;
     int currScore = 0;
@@ -118,11 +123,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
                 if (currScore > maxScore)
                 {
-                    if (goodMove == NULL)
-                    {
-                        delete goodMove;
-                    }
-
                     maxScore = currScore;
                     goodMove = m;
                 }
