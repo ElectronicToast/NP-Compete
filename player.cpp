@@ -146,10 +146,16 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     */
 
+    if (!boardState->hasMoves(playerSide))
+    {
+        return NULL;
+    }
+
     vector <Move *> possibleMoves = boardState->getPossibleMoves(playerSide);
     int score = 0;
-    int maxScore = -65;
-    Move * goodMove = NULL;
+    Move * goodMove = possibleMoves[0];
+    int maxScore = boardState->getScore(goodMove, playerSide);
+
 
     if (possibleMoves.size() == 0)
     {
@@ -158,14 +164,14 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     else
     {
-        for (unsigned int i = 0; i < possibleMoves.size(); i++)
+        for (unsigned int i = 1; i < possibleMoves.size(); i++)
         {
-            score = minimaxScore(boardState, 1, playerSide);
+            score = minimaxScore(boardState, 2, playerSide);
 
             if (score > maxScore)
             {
-                maxScore = score;
                 goodMove = possibleMoves[i];
+                maxScore = score;
             }
 
         }
@@ -217,8 +223,12 @@ int Player::minimaxScore(Board * board, int depth, Side side){
             {
                 maxScore = score;
             }
+
+
         }
     }
+
+    cerr << "one level down" << endl;
 
     return maxScore;
 }
