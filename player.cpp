@@ -32,6 +32,7 @@ Player::Player(Side side) {
         opponent = WHITE;
 
     boardState = new Board();
+
 }
 
 /*
@@ -40,6 +41,15 @@ Player::Player(Side side) {
 Player::~Player() {
 }
 
+
+const int Player::heuristic_matrix[8][8] = {{120, -20, 20, 5, 5, 20, -20, 120},
+                              {-20, -40, -5, -5, -5, -5, -40, -20},
+                              {20, -5, 15, 3, 3, 15, -5, 20},
+                              {5, -5, 3, 3, 3, 3, -5, 5},
+                              {5, -5, 3, 3, 3, 3, -5, 5},
+                              {20, -5, 15, 3, 3, 15, -5, 20},
+                              {-20, -40, -5, -5, -5, -5, -40, -20},
+                              {120, -20, 20, 5, 5, 20, -20, 120}};
 /*
  * Compute the next move given the opponent's last move. Your AI is
  * expected to keep track of the board on its own. If this is the first move,
@@ -92,44 +102,40 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     boardState -> doMove(opponentsMove, opponent);
 
-    vector<Move> goodMoves;
-    vector<Move> possibleMoves;
+    Move * goodMove;
+
+    int maxScore = -100;
+    int currScore = 0;
 
     for (int i = 0; i < 8; i++) 
     {
         for (int j = 0; j < 8; j++) 
         {
-            Move m(i, j);
-            if (boardState->checkMove(&m, playerSide))
+            Move * m = new Move(i, j);
+            if (boardState->checkMove(m, playerSide))
             {
-                possibleMoves.push_back(m);
+                currScore = heuristic_matrix[i][j];
 
-                if (m.getX() > 0 && m.getX() < 8 && m.getY() > 0 && m.getY() < 8)
+                if (currScore > maxScore)
                 {
-                    goodMoves.push_back(m);
+                    if (goodMove == NULL)
+                    {
+                        delete goodMove;
+                    }
+
+                    maxScore = currScore;
+                    goodMove = m;
+                }
+
+                else
+                {
+                    delete m;
                 }
             }
         }
     }
 
-    Move temp(0, 0);
-    Move * theMove;
-
-    if (goodMoves.size() == 0)
-    {
-        srand(time(NULL));
-        temp = possibleMoves[rand() % possibleMoves.size()];
-        theMove = new Move(temp.getX(), temp.getY());
-    }
-
-    else
-    {
-        srand(time(NULL));
-        temp = goodMoves[rand() % goodMoves.size()];
-        theMove = new Move(temp.getX(), temp.getY());
-    }
-
-    boardState->doMove(theMove, playerSide);
+    boardState->doMove(goodMove, playerSide);
     
-    return theMove;
+    return goodMove;
 }

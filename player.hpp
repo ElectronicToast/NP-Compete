@@ -26,6 +26,8 @@ public:
     Side playerSide;
     Side opponent;
 
+    static const int heuristic_matrix[8][8];
+
     Board * boardState;
 };
 
