@@ -170,7 +170,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         {
             for (unsigned int i = 1; i < possibleMoves.size(); i++)
             {
-                score = minimaxScore(boardState, 5, playerSide);
+                score = minimaxScore(boardState, 2, playerSide);
 
                 if (score > maxScore)
                 {
@@ -248,8 +248,6 @@ int Player::minimaxScore(Board * board, int depth, Side side){
 
     if (possibleMoves.size() == 0 || depth <= 0)
     {
-        cerr << "testing base case" << endl;
-
         return getScore(board, nullptr, side);
     }
 
@@ -261,8 +259,6 @@ int Player::minimaxScore(Board * board, int depth, Side side){
 
             for (unsigned int i = 0; i < possibleMoves.size(); i++)
             {
-                cerr << "testing other cases" << endl;
-
                 Board * tempBoard = board->copy();
                 tempBoard->doMove(possibleMoves[i], side);
 
@@ -285,8 +281,6 @@ int Player::minimaxScore(Board * board, int depth, Side side){
 
             for (unsigned int i = 0; i < possibleMoves.size(); i++)
             {
-                cerr << "testing other cases" << endl;
-
                 Board * tempBoard = board->copy();
                 tempBoard->doMove(possibleMoves[i], side);
 
@@ -305,8 +299,6 @@ int Player::minimaxScore(Board * board, int depth, Side side){
         }
 
     }
-
-    cerr << "one level down" << endl;
 
     return bestScore;
 }
