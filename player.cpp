@@ -15,13 +15,7 @@
  */
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
-    testingMinimax = true;
-
-    /*
-     * TODO: Do any initialization you need to do here (setting up the board,
-     * precalculating things, etc.) However, remember that you will only have
-     * 30 seconds.
-     */
+    testingMinimax = false;
 
     // Set player and opponent sides
     playerSide = side;
@@ -64,12 +58,11 @@ const int Player::heuristic_matrix[8][8] = {{120, -20, 20, 5, 5, 20, -20, 120},
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
-     */
 
     /*
+    ///////////////////////////////////////////////////
+    // RANDOM IMPLEMENTATION //////////////////////////
+    ///////////////////////////////////////////////////
 
     // Update internal board representation
     boardState->doMove(opponentsMove, opponent);
@@ -146,6 +139,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     */
 
+    ///////////////////////////////////////////////////
+    // MINIMAX IMPLEMENTATION /////////////////////////
+    ///////////////////////////////////////////////////
+
     if (testingMinimax)
     {
         boardState -> doMove(opponentsMove, opponent);
@@ -194,6 +191,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     }
 
+    ///////////////////////////////////////////////////
+    // HEURISTIC IMPLEMENTATION ///////////////////////
+    ///////////////////////////////////////////////////
+
     else{
         boardState -> doMove(opponentsMove, opponent);
 
@@ -238,6 +239,9 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
 }
 
+/*
+ * Recursively computes the minimum score with minimax
+ */
 int Player::minimaxScore(Board * board, int depth, Side side){
 
     vector <Move *> possibleMoves = getPossibleMoves(board, side);
@@ -246,13 +250,17 @@ int Player::minimaxScore(Board * board, int depth, Side side){
 
     //Side other = side==BLACK? WHITE:BLACK;
 
+    // Base case - if we are at a terminal node of our tree, or
+    // there are no possible moves, simply return the value of the heuristic
     if (possibleMoves.size() == 0 || depth <= 0)
     {
         return getScore(board, nullptr, side);
     }
 
+    // Recursive case
     else
     {
+        // If the current player is us, try to maximize our minimum score
         if (playerSide == side)
         {
             bestScore = -65;
@@ -270,11 +278,10 @@ int Player::minimaxScore(Board * board, int depth, Side side){
                 {
                     bestScore = score;
                 }
-
-
             }
         }
 
+        // Assume that the opponent will try to minimize our score
         else
         {
             bestScore = 65;
@@ -292,10 +299,7 @@ int Player::minimaxScore(Board * board, int depth, Side side){
                 {
                     bestScore = score;
                 }
-
-
             }
-
         }
 
     }
@@ -303,7 +307,13 @@ int Player::minimaxScore(Board * board, int depth, Side side){
     return bestScore;
 }
 
+/*
+ * For a specified side and move, return the value of the
+ * naive heuristic (number of own stones - number of opponent
+ * stones)
+ */
 int Player::getScore(Board * board, Move * m, Side side){
+
     Board * copyBoard = board->copy();
 
     copyBoard->doMove(m, side);
@@ -317,6 +327,10 @@ int Player::getScore(Board * board, Move * m, Side side){
     return score;
 }
 
+/*
+ * For a specified side, return a vector of all the possible moves
+ * in the current game state
+ */
 vector <Move*> Player::getPossibleMoves(Board* board, Side side){
 
     vector <Move*> possibleMoves = vector <Move*>();

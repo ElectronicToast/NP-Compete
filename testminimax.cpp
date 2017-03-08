@@ -27,12 +27,6 @@ int main(int argc, char *argv[]) {
     player->testingMinimax = true;
     player->boardState = board;
 
-
-    /**
-     * TODO: Write code to set your player's internal board state to the
-     * example state.
-     */
-
     // Get player's move and check if it's right.
     Move *move = player->doMove(nullptr, 0);
 
