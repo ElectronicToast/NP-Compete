@@ -23,8 +23,6 @@ public:
     Board *copy();
 
 
-    int getScore(Move * m, Side side);
-    vector <Move*> getPossibleMoves(Side side);
     bool isDone();
     bool hasMoves(Side side);
     bool checkMove(Move *m, Side side);

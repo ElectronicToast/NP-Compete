@@ -146,89 +146,205 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     */
 
-    if (!boardState->hasMoves(playerSide))
+    if (testingMinimax)
     {
-        return NULL;
-    }
+        boardState -> doMove(opponentsMove, opponent);
 
-    vector <Move *> possibleMoves = boardState->getPossibleMoves(playerSide);
-    int score = 0;
-    Move * goodMove = possibleMoves[0];
-    int maxScore = boardState->getScore(goodMove, playerSide);
-
-
-    if (possibleMoves.size() == 0)
-    {
-        return NULL;
-    }
-
-    else
-    {
-        for (unsigned int i = 1; i < possibleMoves.size(); i++)
+        if (!boardState->hasMoves(playerSide))
         {
-            score = minimaxScore(boardState, 2, playerSide);
+            return NULL;
+        }
 
-            if (score > maxScore)
+        vector <Move *> possibleMoves = getPossibleMoves(boardState, playerSide);
+        int score = 0;
+        Move * goodMove = possibleMoves[0];
+        int maxScore = getScore(boardState, goodMove, playerSide);
+
+
+        if (possibleMoves.size() == 0)
+        {
+            return NULL;
+        }
+
+        else
+        {
+            for (unsigned int i = 1; i < possibleMoves.size(); i++)
             {
-                goodMove = possibleMoves[i];
-                maxScore = score;
+                score = minimaxScore(boardState, 5, playerSide);
+
+                if (score > maxScore)
+                {
+                    goodMove = possibleMoves[i];
+                    maxScore = score;
+                }
+
             }
-
         }
-    }
 
-    for (unsigned int i = 0; i < possibleMoves.size(); i++)
-    {
-        if (possibleMoves[i] != goodMove)
+        for (unsigned int i = 0; i < possibleMoves.size(); i++)
         {
-            delete possibleMoves[i];
+            if (possibleMoves[i] != goodMove)
+            {
+                delete possibleMoves[i];
+            }
         }
+
+        boardState->doMove(goodMove, playerSide);
+        return goodMove;
+
     }
 
-    boardState->doMove(goodMove, playerSide);
-    return goodMove;
+    else{
+        boardState -> doMove(opponentsMove, opponent);
+
+        if (!boardState->hasMoves(playerSide))
+        {
+            return NULL;
+        }
+
+        Move * goodMove = NULL;
+
+        int maxScore = -100;
+        int currScore = 0;
+
+        for (int i = 0; i < 8; i++) 
+        {
+            for (int j = 0; j < 8; j++) 
+            {
+                Move * m = new Move(i, j);
+                if (boardState->checkMove(m, playerSide))
+                {
+                    currScore = heuristic_matrix[i][j];
+
+                    if (currScore > maxScore)
+                    {
+                        maxScore = currScore;
+                        goodMove = m;
+                    }
+
+                    else
+                    {
+                        delete m;
+                    }
+                }
+            }
+        }
+
+        boardState->doMove(goodMove, playerSide);
+
+        return goodMove;    
+    }
+
 
 }
 
 int Player::minimaxScore(Board * board, int depth, Side side){
 
-    vector <Move *> possibleMoves = board->getPossibleMoves(side);
+    vector <Move *> possibleMoves = getPossibleMoves(board, side);
     int score = 0;
-    int maxScore = -65;
+    int bestScore = 0;
 
-    Side other = side==BLACK? WHITE:BLACK;
+    //Side other = side==BLACK? WHITE:BLACK;
 
     if (possibleMoves.size() == 0 || depth <= 0)
     {
         cerr << "testing base case" << endl;
 
-        return board->getScore(nullptr, side);
+        return getScore(board, nullptr, side);
     }
 
     else
     {
-        for (unsigned int i = 0; i < possibleMoves.size(); i++)
+        if (playerSide == side)
         {
-            cerr << "testing other cases" << endl;
+            bestScore = -65;
 
-
-            Board * tempBoard = board->copy();
-            tempBoard->doMove(possibleMoves[i], side);
-
-            score = -minimaxScore(tempBoard, depth - 1, other);
-
-            delete tempBoard;
-
-            if (score > maxScore)
+            for (unsigned int i = 0; i < possibleMoves.size(); i++)
             {
-                maxScore = score;
+                cerr << "testing other cases" << endl;
+
+                Board * tempBoard = board->copy();
+                tempBoard->doMove(possibleMoves[i], side);
+
+                score = minimaxScore(tempBoard, depth - 1, opponent);
+
+                delete tempBoard;
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                }
+
+
+            }
+        }
+
+        else
+        {
+            bestScore = 65;
+
+            for (unsigned int i = 0; i < possibleMoves.size(); i++)
+            {
+                cerr << "testing other cases" << endl;
+
+                Board * tempBoard = board->copy();
+                tempBoard->doMove(possibleMoves[i], side);
+
+                score = minimaxScore(tempBoard, depth - 1, playerSide);
+
+                delete tempBoard;
+
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                }
+
+
             }
 
-
         }
+
     }
 
     cerr << "one level down" << endl;
 
-    return maxScore;
+    return bestScore;
+}
+
+int Player::getScore(Board * board, Move * m, Side side){
+    Board * copyBoard = board->copy();
+
+    copyBoard->doMove(m, side);
+
+    Side other = side==BLACK? WHITE:BLACK;
+
+    int score = copyBoard->count(side) - copyBoard->count(other);
+
+    delete copyBoard;
+
+    return score;
+}
+
+vector <Move*> Player::getPossibleMoves(Board* board, Side side){
+
+    vector <Move*> possibleMoves = vector <Move*>();
+
+    if (board->hasMoves(side))
+    {    
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Move * move = new Move(i, j);
+                if (board->checkMove(move, side)){
+                    possibleMoves.push_back(move);
+                }
+
+                else{
+
+                    delete move;
+                }
+            }
+        }
+    }
+
+    return possibleMoves;
 }

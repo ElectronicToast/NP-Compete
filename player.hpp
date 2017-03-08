@@ -31,6 +31,10 @@ public:
     Board * boardState;
 
     int minimaxScore(Board * board, int depth, Side side);
+
+    int getScore(Board* board, Move * m, Side side);
+    vector <Move*> getPossibleMoves(Board* board, Side side);
+
 };
 
 #endif
