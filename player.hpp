@@ -32,7 +32,8 @@ public:
 
     int minimaxScore(Board * board, int depth, Side side);
 
-    int getScore(Board* board, Move * m, Side side);
+    int getMobilityScore(Board* board, Move * m, Side side);
+    int getNumMoves(Board * board, Side side);
     vector <Move*> getPossibleMoves(Board* board, Side side);
 
 };

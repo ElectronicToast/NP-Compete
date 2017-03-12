@@ -8,6 +8,7 @@
  * Hello! - Karthik
  */
 
+#define     HEURISTIC_MAT_WT    1
 /*
  * Constructor for the player; initialize everything here. The side your AI is
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
@@ -15,7 +16,7 @@
  */
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
-    testingMinimax = true;
+    testingMinimax = false;
 
     // Set player and opponent sides
     playerSide = side;
@@ -155,7 +156,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         vector <Move *> possibleMoves = getPossibleMoves(boardState, playerSide);
         int score = 0;
         Move * goodMove = possibleMoves[0];
-        int maxScore = getScore(boardState, goodMove, playerSide);
+        int maxScore = getMobilityScore(boardState, goodMove, playerSide);
 
 
         if (possibleMoves.size() == 0)
@@ -167,7 +168,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         {
             for (unsigned int i = 1; i < possibleMoves.size(); i++)
             {
-                score = minimaxScore(boardState, 3, playerSide);
+                score = minimaxScore(boardState, 2, playerSide);
 
                 if (score > maxScore)
                 {
@@ -254,7 +255,7 @@ int Player::minimaxScore(Board * board, int depth, Side side){
     // there are no possible moves, simply return the value of the heuristic
     if (possibleMoves.size() == 0 || depth <= 0)
     {
-        return getScore(board, nullptr, side);
+        return getMobilityScore(board, nullptr, side);
     }
 
     // Recursive case
@@ -312,7 +313,7 @@ int Player::minimaxScore(Board * board, int depth, Side side){
  * naive heuristic (number of own stones - number of opponent
  * stones)
  */
-int Player::getScore(Board * board, Move * m, Side side){
+int Player::getMobilityScore(Board * board, Move * m, Side side){
 
     Board * copyBoard = board->copy();
 
@@ -320,12 +321,36 @@ int Player::getScore(Board * board, Move * m, Side side){
 
     Side other = side==BLACK? WHITE:BLACK;
 
-    int score = copyBoard->count(side) - copyBoard->count(other);
+    int score = getNumMoves(copyBoard, side) - getNumMoves(copyBoard, other);
 
     delete copyBoard;
 
     return score;
 }
+
+/*
+ * For a specified side, return the number of possible moves in the
+ * current game state
+ */
+int Player::getNumMoves(Board * board, Side side)
+{
+    int moves = 0;
+
+    if (board->hasMoves(side))
+    {    
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Move * move = new Move(i, j);
+
+                if (board->checkMove(move, side))
+                    moves++;
+
+                delete move;
+            }
+        }
+    }
+}
+
 
 /*
  * For a specified side, return a vector of all the possible moves
