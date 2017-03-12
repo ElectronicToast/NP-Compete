@@ -15,7 +15,7 @@
  */
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
-    testingMinimax = false;
+    testingMinimax = true;
 
     // Set player and opponent sides
     playerSide = side;
@@ -167,7 +167,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         {
             for (unsigned int i = 1; i < possibleMoves.size(); i++)
             {
-                score = minimaxScore(boardState, 2, playerSide);
+                score = minimaxScore(boardState, 3, playerSide);
 
                 if (score > maxScore)
                 {
