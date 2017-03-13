@@ -30,8 +30,8 @@ public:
 
     Board * boardState;
 
+    int alphaBetaScore(Board * board, Move * move, int alpha, int beta, int depth, Side side);
     int minimaxScore(Board * board, int depth, Side side);
-
 
     int getNaiveScore(Board * board, Move * m, Side side);
     int getMobilityScore(Board* board, Move * m, Side side);

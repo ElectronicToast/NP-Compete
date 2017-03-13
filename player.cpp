@@ -10,9 +10,12 @@
 
 #define     USE_ABPRUNE         1
 
-#define     STONES_WT           1
-#define     MOBILITY_WT         2
-#define     HEURISTIC_MAT_WT    5
+#define     ABPRUNE_DEPTH       4
+#define     MINIMAX_DEPTH       2
+
+#define     STONES_WT           -2
+#define     MOBILITY_WT         -2
+#define     HEURISTIC_MAT_WT    -5
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
@@ -20,8 +23,11 @@
  * within 30 seconds.
  */
 Player::Player(Side side) {
+    if (ABPRUNE_DEPTH)
+        cerr << "Using alpha-beta pruning!" << endl;
+    
     // Will be set to true in test_minimax.cpp.
-    testingMinimax = false;
+    testingMinimax = true;
 
     // Set player and opponent sides
     playerSide = side;
@@ -140,9 +146,12 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     */
 
+
+
     ///////////////////////////////////////////////////
-    // MINIMAX IMPLEMENTATION /////////////////////////
+    // ALPHA-BETA IMPLEMENTATION //////////////////////
     ///////////////////////////////////////////////////
+
 
     if (USE_ABPRUNE)
     {
@@ -151,8 +160,48 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         if (!boardState->hasMoves(playerSide))
             return NULL;
 
-        return NULL;
+        vector <Move *> possibleMoves = getPossibleMoves(boardState, playerSide);
+        int score = 0;
+        Move * goodMove = possibleMoves[0];
+        int maxScore = -10000000;
+
+        if (possibleMoves.size() == 0)
+            return NULL;
+
+        else
+        {
+            for (unsigned int i = 1; i < possibleMoves.size(); i++)
+            {
+                score = alphaBetaScore(boardState, possibleMoves[i],
+                    -10000000, 10000000, ABPRUNE_DEPTH, playerSide);
+
+                if (score > maxScore)
+                {
+                    goodMove = possibleMoves[i];
+                    maxScore = score;
+                }
+
+            }
+        }
+
+        for (unsigned int i = 0; i < possibleMoves.size(); i++)
+        {
+            if (possibleMoves[i] != goodMove)
+            {
+                delete possibleMoves[i];
+            }
+        }
+
+        boardState->doMove(goodMove, playerSide);
+        return goodMove;
     }
+
+
+
+    ///////////////////////////////////////////////////
+    // MINIMAX IMPLEMENTATION /////////////////////////
+    ///////////////////////////////////////////////////
+
 
     if (testingMinimax)
     {
@@ -176,7 +225,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         {
             for (unsigned int i = 1; i < possibleMoves.size(); i++)
             {
-                score = minimaxScore(boardState, 3, playerSide);
+                score = minimaxScore(boardState, MINIMAX_DEPTH, playerSide);
 
                 if (score > maxScore)
                 {
@@ -253,8 +302,92 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
         return goodMove;    
     }
+}
 
+int Player::alphaBetaScore(Board * board, Move * move, int alpha, int beta, int depth, Side side)
+{
+    Board * newBoard = board->copy();
+    newBoard->doMove(move, side);
 
+    Side other = (side == BLACK) ? WHITE : BLACK;
+
+    vector <Move *> possibleMoves = getPossibleMoves(newBoard, other);
+    int score = -10000000;
+    int bestScore = 0;
+
+    if (depth == 0)
+    {
+        if(possibleMoves.size() == 0)
+        {
+            score = (HEURISTIC_MAT_WT * heuristic_matrix[move->x][move->y]) 
+                + (MOBILITY_WT * getMobilityScore(newBoard, nullptr, other))
+                + (STONES_WT * getNaiveScore(newBoard, nullptr, other));
+
+            delete newBoard;
+            return score;
+        }
+
+        int minScore = 100000;
+
+        for (unsigned int i = 0; i < possibleMoves.size(); i++)
+        {
+            score = (HEURISTIC_MAT_WT * heuristic_matrix[possibleMoves[i]->x]
+                [possibleMoves[i]->y]) 
+                + (MOBILITY_WT * getMobilityScore(newBoard, nullptr, other))
+                + (STONES_WT * getNaiveScore(newBoard, nullptr, other));
+
+            if (score < minScore)
+                minScore = score;
+        }
+
+        delete newBoard;
+
+        return minScore;
+    }
+
+    // If it's our turn (last move was opponent's)
+    if (side == opponent)
+    {
+        bestScore = -10000000;
+
+        for (unsigned int i = 0; i < possibleMoves.size(); i++)
+        {
+            score = alphaBetaScore(newBoard, possibleMoves[i], alpha, beta, 
+                depth - 1, other);
+
+            if (score > bestScore)
+                bestScore = score;
+
+            if (bestScore > alpha)
+                alpha = bestScore;
+
+            if (beta <= alpha)
+                break;
+        }
+    }
+    // If it's our opponent's turn (last move was ours)
+    else
+    {
+        bestScore = 10000000;
+
+        for (unsigned int i = 0; i < possibleMoves.size(); i++)
+        {
+            score = alphaBetaScore(newBoard, possibleMoves[i], alpha, beta, 
+                depth - 1, other);
+
+            if (score < bestScore)
+                bestScore = score;
+
+            if (bestScore < beta)
+                beta = bestScore;
+
+            if (beta <= alpha)
+                break;
+        }
+    }
+
+    delete newBoard;
+    return bestScore;
 }
 
 /*
@@ -287,7 +420,7 @@ int Player::minimaxScore(Board * board, int depth, Side side){
                 minScore = score;
         }
 
-        return score;
+        return minScore;
     }
 
     // Recursive case
@@ -310,9 +443,7 @@ int Player::minimaxScore(Board * board, int depth, Side side){
                 delete tempBoard;
 
                 if (score > bestScore)
-                {
                     bestScore = score;
-                }
             }
         }
 
@@ -333,9 +464,7 @@ int Player::minimaxScore(Board * board, int depth, Side side){
                 delete tempBoard;
 
                 if (score < bestScore)
-                {
                     bestScore = score;
-                }
             }
         }
 
