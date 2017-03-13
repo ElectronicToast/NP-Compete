@@ -26,13 +26,16 @@ public:
     Side playerSide;
     Side opponent;
 
-    static const int heuristic_matrix[8][8];
+    static const short heuristic_matrix[8][8];
 
     Board * boardState;
 
     int minimaxScore(Board * board, int depth, Side side);
 
+
+    int getNaiveScore(Board * board, Move * m, Side side);
     int getMobilityScore(Board* board, Move * m, Side side);
+
     int getNumMoves(Board * board, Side side);
     vector <Move*> getPossibleMoves(Board* board, Side side);
 

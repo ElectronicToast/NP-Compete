@@ -8,7 +8,12 @@
  * Hello! - Karthik
  */
 
-#define     HEURISTIC_MAT_WT    1
+#define     USE_ABPRUNE         1
+
+#define     STONES_WT           1
+#define     MOBILITY_WT         2
+#define     HEURISTIC_MAT_WT    5
+
 /*
  * Constructor for the player; initialize everything here. The side your AI is
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
@@ -20,14 +25,9 @@ Player::Player(Side side) {
 
     // Set player and opponent sides
     playerSide = side;
-
-    if (side == WHITE)
-        opponent = BLACK;
-    else
-        opponent = WHITE;
+    opponent = (side == BLACK) ? WHITE : BLACK;
 
     boardState = new Board();
-
 }
 
 /*
@@ -37,7 +37,7 @@ Player::~Player() {
 }
 
 
-const int Player::heuristic_matrix[8][8] = {{120, -20, 20, 5, 5, 20, -20, 120},
+const short Player::heuristic_matrix[8][8] = {{120, -20, 20, 5, 5, 20, -20, 120},
                               {-20, -40, -5, -5, -5, -5, -40, -20},
                               {20, -5, 15, 3, 3, 15, -5, 20},
                               {5, -5, 3, 3, 3, 3, -5, 5},
@@ -144,14 +144,22 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     // MINIMAX IMPLEMENTATION /////////////////////////
     ///////////////////////////////////////////////////
 
+    if (USE_ABPRUNE)
+    {
+        boardState -> doMove(opponentsMove, opponent);
+
+        if (!boardState->hasMoves(playerSide))
+            return NULL;
+
+        return NULL;
+    }
+
     if (testingMinimax)
     {
         boardState -> doMove(opponentsMove, opponent);
 
         if (!boardState->hasMoves(playerSide))
-        {
             return NULL;
-        }
 
         vector <Move *> possibleMoves = getPossibleMoves(boardState, playerSide);
         int score = 0;
@@ -168,7 +176,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         {
             for (unsigned int i = 1; i < possibleMoves.size(); i++)
             {
-                score = minimaxScore(boardState, 2, playerSide);
+                score = minimaxScore(boardState, 3, playerSide);
 
                 if (score > maxScore)
                 {
@@ -206,7 +214,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
         Move * goodMove = NULL;
 
-        int maxScore = -100;
+        int maxScore = -100000;
         int currScore = 0;
 
         for (int i = 0; i < 8; i++) 
@@ -214,9 +222,16 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             for (int j = 0; j < 8; j++) 
             {
                 Move * m = new Move(i, j);
+
                 if (boardState->checkMove(m, playerSide))
                 {
-                    currScore = heuristic_matrix[i][j];
+                    Board * tempBoard = boardState->copy();
+
+                    tempBoard->doMove(m, playerSide);
+
+                    currScore = (HEURISTIC_MAT_WT * heuristic_matrix[i][j])
+                        + (STONES_WT * getNaiveScore(tempBoard, nullptr, playerSide))
+                        + (MOBILITY_WT * getMobilityScore(tempBoard, nullptr, playerSide));
 
                     if (currScore > maxScore)
                     {
@@ -228,6 +243,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
                     {
                         delete m;
                     }
+
+                    delete tempBoard;
                 }
             }
         }
@@ -253,9 +270,24 @@ int Player::minimaxScore(Board * board, int depth, Side side){
 
     // Base case - if we are at a terminal node of our tree, or
     // there are no possible moves, simply return the value of the heuristic
-    if (possibleMoves.size() == 0 || depth <= 0)
+    if (depth == 0)
     {
-        return getMobilityScore(board, nullptr, side);
+        if(possibleMoves.size() == 0)
+            return getMobilityScore(board, nullptr, side);
+
+        int minScore = 100000;
+
+        for (unsigned int i = 0; i < possibleMoves.size(); i++)
+        {
+            score = (HEURISTIC_MAT_WT * heuristic_matrix[possibleMoves[i]->x]
+                [possibleMoves[i]->y]) + (MOBILITY_WT * getMobilityScore(board, nullptr, side))
+                + (STONES_WT * getNaiveScore(board, nullptr, side));
+
+            if (score < minScore)
+                minScore = score;
+        }
+
+        return score;
     }
 
     // Recursive case
@@ -264,13 +296,15 @@ int Player::minimaxScore(Board * board, int depth, Side side){
         // If the current player is us, try to maximize our minimum score
         if (playerSide == side)
         {
-            bestScore = -65;
+            bestScore = -100000;
 
             for (unsigned int i = 0; i < possibleMoves.size(); i++)
             {
                 Board * tempBoard = board->copy();
                 tempBoard->doMove(possibleMoves[i], side);
 
+                //score = (HEURISTIC_MAT_WT * heuristic_matrix[possibleMoves[i]->x]
+                //    [possibleMoves[i]->y]) + minimaxScore(tempBoard, depth - 1, opponent);
                 score = minimaxScore(tempBoard, depth - 1, opponent);
 
                 delete tempBoard;
@@ -285,14 +319,16 @@ int Player::minimaxScore(Board * board, int depth, Side side){
         // Assume that the opponent will try to minimize our score
         else
         {
-            bestScore = 65;
+            bestScore = 100000;
 
             for (unsigned int i = 0; i < possibleMoves.size(); i++)
             {
                 Board * tempBoard = board->copy();
                 tempBoard->doMove(possibleMoves[i], side);
 
-                score = minimaxScore(tempBoard, depth - 1, playerSide);
+                //score = (HEURISTIC_MAT_WT * heuristic_matrix[possibleMoves[i]->x]
+                //    [possibleMoves[i]->y]) + minimaxScore(tempBoard, depth - 1, playerSide);
+                score = minimaxScore(tempBoard, depth - 1, opponent);
 
                 delete tempBoard;
 
@@ -313,6 +349,23 @@ int Player::minimaxScore(Board * board, int depth, Side side){
  * naive heuristic (number of own stones - number of opponent
  * stones)
  */
+int Player::getNaiveScore(Board * board, Move * m, Side side){
+
+    Board * copyBoard = board->copy();
+
+    copyBoard->doMove(m, side);
+
+    Side other = side==BLACK? WHITE:BLACK;
+
+    int score = copyBoard->count(side) - copyBoard->count(other);
+
+    delete copyBoard;
+
+    return score;
+}
+
+
+
 int Player::getMobilityScore(Board * board, Move * m, Side side){
 
     Board * copyBoard = board->copy();
