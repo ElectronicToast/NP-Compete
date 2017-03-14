@@ -8,14 +8,18 @@
  * Hello! - Karthik
  */
 
-#define     USE_ABPRUNE         1
+#define     USE_ABPRUNE         4
 
-#define     ABPRUNE_DEPTH       4
+#define     ABPRUNE_DEPTH       2
 #define     MINIMAX_DEPTH       2
 
 #define     STONES_WT           -2
-#define     MOBILITY_WT         -2
-#define     HEURISTIC_MAT_WT    -5
+#define     MOBILITY_WT         -8
+#define     HEURISTIC_MAT_WT    -10
+
+#define     ENDGAME_STONES_WT    -15   
+#define     ENDGAME_MOBILITY_WT  0
+#define     ENDGAME_HEUR_MT_WT   -7
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
@@ -315,8 +319,18 @@ int Player::alphaBetaScore(Board * board, Move * move, int alpha, int beta, int 
     int score = -10000000;
     int bestScore = 0;
 
+    int cutoff = 5;
+
+    int movesLeft = 64 - newBoard->numFreeSquares();
+
     if (depth == 0)
     {
+        if (movesLeft < cutoff)
+        {
+            score = ENDGAME_STONES_WT + ENDGAME_MOBILITY_WT + ENDGAME_HEUR_MT_WT;
+            return score;
+        }
+
         if(possibleMoves.size() == 0)
         {
             score = (HEURISTIC_MAT_WT * heuristic_matrix[move->x][move->y]) 
@@ -503,7 +517,34 @@ int Player::getMobilityScore(Board * board, Move * m, Side side){
 
     Side other = side==BLACK? WHITE:BLACK;
 
-    int score = getNumMoves(copyBoard, side) - getNumMoves(copyBoard, other);
+    int score;
+
+    // if (getNumMoves(copyBoard, side) + getNumMoves(copyBoard, other) != 0)
+    // {
+    //     score = int(100 * ((float) (getNumMoves(copyBoard, side) - getNumMoves(copyBoard, other)))/((float) ((getNumMoves(copyBoard, side) + getNumMoves(copyBoard, other)))));
+    // }
+
+    // else
+    // {
+    //     score = 0;
+    // }
+
+    int playerMoves = getNumMoves(copyBoard, side);
+    int oppMoves = getNumMoves(copyBoard, other);
+
+    if (playerMoves > oppMoves)
+    {
+        score = int(((float)(100) * playerMoves / ((float) playerMoves + oppMoves)));
+    }
+
+    else if (playerMoves < oppMoves)
+    {
+        score = -int(((float)(100) * playerMoves / ((float) playerMoves + oppMoves)));
+    }
+
+    else{
+        score = 0;
+    }
 
     delete copyBoard;
 
@@ -531,6 +572,8 @@ int Player::getNumMoves(Board * board, Side side)
             }
         }
     }
+
+    return moves;
 }
 
 

@@ -30,6 +30,7 @@ public:
     int count(Side side);
     int countBlack();
     int countWhite();
+    int numFreeSquares();
 
     void setBoard(char data[]);
 };

@@ -179,3 +179,20 @@ void Board::setBoard(char data[]) {
     }
 }
 
+int Board::numFreeSquares(){
+    int countFree = 0;
+
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < j; j++)
+        {
+            if (!this->occupied(i, j))
+            {
+                countFree++;
+            }
+        }
+    }
+
+    return countFree;
+}
+
