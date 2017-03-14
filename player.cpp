@@ -8,13 +8,13 @@
  * Hello! - Karthik
  */
 
-#define     USE_ABPRUNE         5
+#define     USE_ABPRUNE         true
 
-#define     ABPRUNE_DEPTH       5
+#define     ABPRUNE_DEPTH       2
 #define     MINIMAX_DEPTH       2
 
-#define     STONES_WT           1
-#define     MOBILITY_WT         -100
+#define     STONES_WT           -1
+#define     MOBILITY_WT         -500
 #define     HEURISTIC_MAT_WT    -1000
 
 #define     ENDGAME_STONES_WT    -45   
@@ -27,11 +27,11 @@
  * within 30 seconds.
  */
 Player::Player(Side side) {
-    if (ABPRUNE_DEPTH)
+    if (USE_ABPRUNE)
         cerr << "Using alpha-beta pruning!" << endl;
     
     // Will be set to true in test_minimax.cpp.
-    testingMinimax = true;
+    testingMinimax = false;
 
     // Set player and opponent sides
     playerSide = side;
