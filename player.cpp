@@ -13,7 +13,7 @@
 #define     ABPRUNE_DEPTH       2
 #define     MINIMAX_DEPTH       2
 
-#define     STONES_WT           -1
+#define     STONES_WT           1
 #define     MOBILITY_WT         -500
 #define     HEURISTIC_MAT_WT    -1000
 
