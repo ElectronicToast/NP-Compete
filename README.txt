@@ -5,6 +5,26 @@ Karthik Karnik, Ray Sun
 
 ##### CONTRIBUTIONS #####
 
+Over the past two weeks, we proceeded to complete each step of Part 1 of the 
+assignment, in additionwrt to alpha-beta pruning, in concert. We discussed
+strategies and implementation details together, and worked on the actual
+code together. 
+
+For Part 1, Karthik implemented the random and naive heuristic algorithms.
+We then experimented together with various constant-time heuristics (including
+the array of scores assigned to each square, and mobility) before implementing
+minimax. We separately wrote minimax implementations and then took the better
+one (Karthik's). We then each tested the implementation independently, verifying
+that the test case was successful and observing that minimax could beat SimplePlayer
+and ConstantTimePlayer more often than not.
+
+For Part 2, Ray wrote the alpha-beta-pruning implementation and devised the
+essence of the heuristic that we ended up using (weighted # stones + weighted
+mobility + weighted square value). Karthik then refined these weights from
+strategies that we discovered online, and implemented an endgame case within
+the alpha-beta-pruning method. We then tuned our AI separately to empirically
+find the best heuristics.
+
 
 ##### IMPROVEMENTS #####
 
