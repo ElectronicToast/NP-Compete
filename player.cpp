@@ -8,18 +8,18 @@
  * Hello! - Karthik
  */
 
-#define     USE_ABPRUNE         4
+#define     USE_ABPRUNE         5
 
-#define     ABPRUNE_DEPTH       2
+#define     ABPRUNE_DEPTH       5
 #define     MINIMAX_DEPTH       2
 
-#define     STONES_WT           -2
-#define     MOBILITY_WT         -8
-#define     HEURISTIC_MAT_WT    -10
+#define     STONES_WT           1
+#define     MOBILITY_WT         -100
+#define     HEURISTIC_MAT_WT    -1000
 
-#define     ENDGAME_STONES_WT    -15   
+#define     ENDGAME_STONES_WT    -45   
 #define     ENDGAME_MOBILITY_WT  0
-#define     ENDGAME_HEUR_MT_WT   -7
+#define     ENDGAME_HEUR_MT_WT   -1
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
